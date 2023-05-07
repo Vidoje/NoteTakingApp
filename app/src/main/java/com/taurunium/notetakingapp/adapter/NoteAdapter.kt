@@ -1,12 +1,16 @@
 package com.taurunium.notetakingapp.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.taurunium.notetakingapp.databinding.NoteLayoutBinding
+import com.taurunium.notetakingapp.fragments.HomeFragmentDirections
 import com.taurunium.notetakingapp.model.Note
+import java.util.Random
 
 class NoteAdapter : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
 
@@ -42,6 +46,18 @@ class NoteAdapter : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        val currentNote = differ.currentList[position]
+        holder.itemBinding.tvNoteTitle.text = currentNote.noteTitle
+        holder.itemBinding.tvNoteBody.text = currentNote.noteBody
+
+        val random = Random()
+        val color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256))
+
+        holder.itemBinding.ibColor.setBackgroundColor(color)
+        holder.itemView.setOnClickListener{
+            val direction = HomeFragmentDirections.actionHomeFragmentToUpdateNoteFragment(currentNote)
+            it.findNavController().navigate(direction)
+        }
+
     }
 }
