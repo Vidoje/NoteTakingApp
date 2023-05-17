@@ -48,19 +48,19 @@ class HomeFragment : Fragment(R.layout.fragment_home), SearchView.OnQueryTextLis
             setHasFixedSize(true)
             adapter = noteAdaper
         }
-        activity?.let{
-            notesViewModel.getAllNotes().observe(viewLifecycleOwner, {
-                note-> noteAdaper.differ.submitList(note)
+        activity?.let {
+            notesViewModel.getAllNotes().observe(viewLifecycleOwner, { note ->
+                noteAdaper.differ.submitList(note)
                 updateUI(note)
             })
         }
     }
 
-    private fun updateUI(note: List<Note>?){
-        if(note.isNotEmpty()){
+    private fun updateUI(note: List<Note>?) {
+        if (note.isNotEmpty()) {
             binding.cardView.visibility = View.GONE
             binding.recyclerView.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.cardView.visibility = View.VISIBLE
             binding.recyclerView.visibility = View.GONE
         }
@@ -68,6 +68,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), SearchView.OnQueryTextLis
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        menu.clear()
+        inflater.inflate(R.menu.home_menu, menu)
+
+        val mMenuSearch = menu.findItem(R.id.menu_search).actionView as SearchView
+        mMenuSearch.isSubmitButtonEnabled = false
+        mMenuSearch.setOnQueryTextListener(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,11 +82,27 @@ class HomeFragment : Fragment(R.layout.fragment_home), SearchView.OnQueryTextLis
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        TODO("Not yet implemented")
+ //       searchNote(query)
+        return false
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        TODO("Not yet implemented")
+        if (newText != null) {
+            searchNote(newText)
+        }
+        return true
     }
 
+    private fun searchNote(query: String?) {
+        val searchQuery = "%$query"
+        notesViewModel.searchNote(searchQuery).observe(
+            this,
+            { list -> noteAdaper.differ.submitList(list) }
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }
